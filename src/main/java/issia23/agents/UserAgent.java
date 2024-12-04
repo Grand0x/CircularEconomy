@@ -2,7 +2,6 @@ package issia23.agents;
 
 import jade.core.AID;
 import jade.core.AgentServicesTools;
-import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPANames;
 import jade.gui.AgentWindowed;
 import jade.gui.GuiEvent;
@@ -10,7 +9,10 @@ import jade.gui.SimpleWindow4Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class UserAgent extends AgentWindowed {
     /**
@@ -67,7 +69,12 @@ public class UserAgent extends AgentWindowed {
             //                    list that can be modified here or at once when all the messages are received
             @Override
             public void handlePropose(ACLMessage propose, List<ACLMessage> acceptations) {
-                println("Agent %s proposes %s ".formatted(propose.getSender().getLocalName(), propose.getContent()));
+                println("Received proposal from %s: %s".formatted(propose.getSender().getLocalName(), propose.getContent()));
+                String[] details = propose.getContent().split(",");
+                int cost = Integer.parseInt(details[0]);
+                int time = Integer.parseInt(details[1]);
+
+                println("Proposal details: cost = " + cost + "€, time = " + time + " days.");
             }
 
             //function triggered by a REFUSE msg

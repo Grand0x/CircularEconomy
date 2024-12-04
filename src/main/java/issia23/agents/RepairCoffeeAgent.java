@@ -41,14 +41,22 @@ public class RepairCoffeeAgent extends AgentWindowed {
             @Override
             protected ACLMessage handleCfp(ACLMessage cfp) throws RefuseException, FailureException, NotUnderstoodException {
                 println("~".repeat(40));
-                int hasard = (int)(Math.random()*8) - 4;
-                println(cfp.getSender().getLocalName() + " proposes this options: " + cfp.getContent());
-                ACLMessage answer = cfp.createReply();
-                if(hasard<=0 )answer.setPerformative(ACLMessage.REFUSE);
-                else answer.setPerformative(ACLMessage.PROPOSE);
+                println(cfp.getSender().getLocalName() + " is asking for a repair for: " + cfp.getContent());
 
-//                String choice = makeItsChoice(cfp.getContent());
-                answer.setContent(String.valueOf(hasard));
+                int randomAvailability = (int) (Math.random() * 8) - 4; // Random to simulate availability
+                ACLMessage answer = cfp.createReply();
+
+                if (randomAvailability <= 0) {
+                    answer.setPerformative(ACLMessage.REFUSE);
+                    println("Refused repair for: " + cfp.getContent());
+                } else {
+                    int cost = 10; // Fixed cost for repair coffee
+                    int time = 2;  // Fixed time for repair coffee
+                    answer.setPerformative(ACLMessage.PROPOSE);
+                    answer.setContent(cost + "," + time); // Propose cost and time as a string
+                    println("Proposing repair for " + cfp.getContent() + " with cost: " + cost + "€ and time: " + time + " days.");
+                }
+
                 return answer;
             }
 
