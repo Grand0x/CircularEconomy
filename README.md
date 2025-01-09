@@ -1,65 +1,90 @@
-<meta name="description" content="Programmation multi-agent en Java : utilisation d'une version mise à jour de la plateforme Jade. Matériaux pour le tutoriel Jade : communication, protocoles, votes, services, comportements, ..." />
+### Programmation multi-agents avec JADE
 
-# Programmation d'agents avec Jade
-
-[(version web)](https://emmanueladam.github.io/jade/)
+[(version web)](https://emmanueladam.github.io/jade/)  
 [(version française)](https://github.com/EmmanuelADAM/jade/tree/master/)
 
-Étude de cas pour ISSIA'23.
+Cas d'étude pour ISSIA'23.
 
-----
+---
 ## Économie circulaire
 
 Voici un scénario :
+- Un utilisateur possède des produits.
+- Ces produits peuvent tomber en panne ou devenir obsolètes.
+- Plusieurs solutions existent :
+  - Tutoriels en ligne,
+  - Cafés de réparation,
+  - Magasins de pièces détachées,
+  - Distributeurs.
 
-- certains utilisateurs possèdent des produits
-- certains produits peuvent être cassés ou devenir obsolètes
-- plusieurs solutions existent :
-    - tutoriels en ligne
-    - repair cafés
-    - magasins de pièces détachées
-    - distributeurs.
+Lorsqu’un produit ne fonctionne plus, l’utilisateur cherche de l’aide :
+- D'abord par ses propres moyens,
+- Ensuite localement (café de réparation),
+- Puis dans une région plus large,
+- Enfin auprès des distributeurs.
 
-- Lorsque le produit ne fonctionne plus, l'utilisateur essaie de trouver de l'aide : par lui-même, localement (repair café), dans une région plus large, et enfin auprès des distributeurs.
+Des solutions peuvent exister sur internet, mais l’utilisateur peut avoir besoin d’un café de réparation pour comprendre et réparer son produit.
 
-- Des solutions peuvent exister en ligne, mais l'utilisateur peut avoir besoin d'un repair café pour comprendre et réparer son produit.
+### Spécifications pour un scénario simple :
+1. **Types de produits** :
+  - Cafetière : 3 pièces, environ 40 €
+  - Lave-linge : 3 pièces, environ 200 €
+  - Souris d’ordinateur : 3 pièces, environ 40 €
+  - Aspirateur : 3 pièces, environ 100 €
+  - Lave-vaisselle : 4 pièces, environ 200 €
 
-Nous pouvons ajouter ces spécifications pour un scénario simple :
-- un produit a de 1 à 4 éléments amovibles/réparables, que nous appelons el1, el2, el3, el4.
-- une panne concerne un élément.
-- une panne peut être très légère (0), facile (1), moyenne (2), difficile (3), définitive (4)
-    - ce niveau de problème est détecté pendant la réparation
-- un utilisateur a une compétence de réparation, cette compétence peut être de niveau :
-    - 0 (incapable de réparer lui-même et de comprendre),
-    - 1 (peut comprendre une panne de niveau jusqu'à 1, mais ne peut réparer que le niveau 0),
-    - 2 (peut comprendre et réparer une panne de niveau jusqu'à 2),
-    - 3 (peut comprendre et réparer une panne de niveau jusqu'à 3),
+2. **Exemples de produits** :
+  - Cafetière10 : une cafetière avec un prix majoré de 10 %.
+  - LaveVaisselle-30 : un lave-vaisselle avec un prix réduit de 30 %.
 
-- les repair cafés n'ont que 4 éléments des types 1, 2 ou 3 et n'ont pas d'éléments de type 4
-- les magasins de pièces détachées n'ont que 10 éléments des types 1, 2 ou 3 et n'ont pas d'éléments de type 4
-- les distributeurs n'ont pas de problème d'éléments
+3. **Pièces amovibles ou réparables** :
+  - Un produit contient entre 1 et 4 pièces identifiables (ex. Cafetière10-1).
+  - Une panne touche une seule pièce, et peut être :
+    - Très légère (0), facile (1), moyenne (2), difficile (3), définitive (4).
+  - Le niveau de panne est détecté lors de la réparation.
 
-- les repair cafés ont un coût de 10€/élément (seconde main)
-- les magasins de pièces détachées ont un coût de 30€/élément
-- les distributeurs ont un coût de 60€/élément
+4. **Compétences des utilisateurs** :
+  - Niveau 0 : Incapable de comprendre ou réparer.
+  - Niveau 1 : Comprend des pannes de niveau 1, répare le niveau 0.
+  - Niveau 2 : Comprend et répare jusqu’au niveau 2.
+  - Niveau 3 : Comprend et répare jusqu’au niveau 3.
 
-- un utilisateur a une quantité d'argent limitée.
-    - nous supposons qu'il/elle choisit d'aller au repair café et si la réparation est impossible là-bas :
-        - il/elle passe au niveau supérieur (un magasin de pièces détachées)
-        - ou arrête et laisse l'élément de son produit au repair café.
+5. **Cafés de réparation** :
+  - Spécialisés par type de produit.
+  - Possèdent seulement 4 pièces des types 1, 2 ou 3 ; aucune pièce de type 4.
+  - Compétences de réparation de niveau 2 ou 3.
+
+6. **Magasins de pièces détachées** :
+  - Spécialisés par type de produit.
+  - Possèdent 10 pièces des types 1, 2 ou 3 ; aucune pièce de type 4.
+
+7. **Distributeurs** :
+  - Pas de restrictions sur les produits disponibles.
+
+8. **Tarifs** :
+  - Cafés de réparation : 5 à 15 €/pièce (seconde main).
+  - Magasins de pièces détachées : 20 à 40 €/pièce.
+  - Distributeurs : 50 à 70 €/pièce.
+
+9. **Limites** :
+  - Les utilisateurs ont un budget limité.
+  - Ils recherchent un café de réparation adapté à leur produit.
+  - En cas d’échec, ils peuvent demander une pièce au magasin ou acheter un nouveau produit.
 
 ---
-Concevez et construisez des agents utilisant la nouvelle bibliothèque Jade pour simuler ce comportement.
-- Générer un objet aléatoire pour les agents utilisateurs,
-- et des éléments aléatoires dans le magasin et le repair café.
+### Objectif
+Concevoir et programmer des agents utilisant la bibliothèque JADE pour simuler ce comportement.
+- Générer des objets aléatoires pour les agents utilisateurs.
+- Générer des pièces aléatoires pour les cafés de réparation et les magasins.
+
+Les cafés de réparation peuvent échanger des pièces entre eux (1 jour/échange).
+
+### Critères supplémentaires
+- Flexibilité pour fixer un rendez-vous.
+- Flexibilité pour la réception de pièces ou produits.
 
 ---
-Les repair cafés peuvent interagir entre eux pour échanger des pièces.
-- cela a un coût en temps... 1 jour/élément
-
-Nous ajoutons un second critère, le temps :
-- les repair cafés ont un coût de 2 jours/élément (ils vous apprennent à réparer, et l'élément ne s'adapte pas très bien)
-- les magasins de pièces détachées ont un coût de 1 jour (ils ont la pièce spécifique bien adaptée mais vous avez besoin d'un jour pour l'installer)
-- les distributeurs ont un coût de 1 jour (ils échangent simplement l'élément)
-
----
+### Code
+- Le code fourni est fonctionnel. Il peut être lancé via la classe `launch.Launch`.
+- Les utilisateurs reçoivent des produits. Les agents RepairCoffeeAgents et PartstoreAgents reçoivent des pièces (davantage pour les SparestoreAgents). Les distributeurs reçoivent des produits.
+- Un utilisateur lance un appel d’offre vers les RepairCoffeeAgents. Cet appel n’est qu’un exemple et ne fait rien de concret.
