@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepairCoffeeAgent extends AgentWindowed {
-    List<Part> parts;
+    public List<Part> parts;
+
+    // Niveau de compétence de réparation (par exemple, 2 ou 3)
+    private int repairSkillLevel;
 
     @Override
     public void setup(){

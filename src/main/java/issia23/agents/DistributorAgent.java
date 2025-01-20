@@ -4,6 +4,7 @@ import issia23.data.Product;
 import jade.core.AgentServicesTools;
 import jade.gui.AgentWindowed;
 import jade.gui.SimpleWindow4Agent;
+import jade.lang.acl.MessageTemplate;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -35,6 +36,22 @@ public class DistributorAgent extends AgentWindowed {
         println("i have the following products : ");
         for(var p:products) println(p.getName() + " ");
 
+        addListeningACFP();
+    }
+
+    private void addListeningACFP()
+    {
+
+        MessageTemplate model = MessageTemplate.MatchConversationId("id");
+
+        //var attenteDemandeUtilisateur = new CafeRepondreUtilisateur(this, model);
+
+        //addBehaviour(attenteDemandeUtilisateur);
+    }
+
+
+    public void println(String s){
+        window.println(s);
     }
 
 }

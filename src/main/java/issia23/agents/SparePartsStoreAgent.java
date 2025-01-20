@@ -1,16 +1,19 @@
 package issia23.agents;
 
+import issia23.behaviours.CafeRepondreUtilisateur;
+import issia23.behaviours.SparePartsStoreRepondreUtilisateur;
 import issia23.data.Part;
 import jade.core.AgentServicesTools;
 import jade.gui.AgentWindowed;
 import jade.gui.SimpleWindow4Agent;
+import jade.lang.acl.MessageTemplate;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SparePartsStoreAgent extends AgentWindowed {
-    List<Part> parts;
+    public List<Part> parts;
 
     @Override
     public void setup(){
@@ -36,6 +39,31 @@ public class SparePartsStoreAgent extends AgentWindowed {
         println("i have the following parts : ");
         for(var p:parts) println(p.getName() + " ");
 
+        addListeningACFP();
+    }
+
+    public Part findPart(String partName) {
+        for (Part part : parts) {
+            if (part.getName().equals(partName)) {
+                return part;
+            }
+        }
+        return null;  // Si la pièce n'est pas trouvée
+    }
+
+    private void addListeningACFP()
+    {
+
+        MessageTemplate model = MessageTemplate.MatchConversationId("id");
+
+        var attenteDemandeUtilisateur = new SparePartsStoreRepondreUtilisateur(this, model);
+
+        addBehaviour(attenteDemandeUtilisateur);
+    }
+
+
+    public void println(String s){
+        window.println(s);
     }
 
 }

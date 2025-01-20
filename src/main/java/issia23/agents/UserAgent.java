@@ -10,6 +10,7 @@ import jade.gui.SimpleWindow4Agent;
 import jade.lang.acl.ACLMessage;
 import issia23.behaviours.ContacterRepairCafe;
 
+import java.io.IOException;
 import java.util.*;
 
 public class UserAgent extends AgentWindowed {
@@ -55,15 +56,19 @@ public class UserAgent extends AgentWindowed {
             println("found this agent : " + aid.getLocalName());
         println("-".repeat(30));
 
-        addCFP();
+        try {
+            addCFP();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**add a CFP from user to list of helpers*/
-    private void addCFP(){
+    private void addCFP() throws IOException {
         ACLMessage msg = new ACLMessage(ACLMessage.CFP);
         msg.setConversationId("id");
         int randint = (int)(Math.random()*products.size());
-        msg.setContent(products.get(randint).getName());
+        msg.setContentObject(products.get(randint));
 
         msg.addReceivers(helpers.toArray(AID[]::new));
         println("-".repeat(40));

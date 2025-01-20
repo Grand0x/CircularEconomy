@@ -1,20 +1,24 @@
 package issia23.behaviours;
 
 import issia23.agents.RepairCoffeeAgent;
+import issia23.data.Product;
+import issia23.data.Part;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetResponder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class CafeRepondreUtilisateur extends ContractNetResponder {
 
     RepairCoffeeAgent monAgent;
+
+    private static final int MIN_PRICE = 5;
+    private static final int MAX_PRICE = 15;
 
     public CafeRepondreUtilisateur(RepairCoffeeAgent a, MessageTemplate model) {
         super(a, model);
@@ -25,31 +29,40 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
     @Override
     protected ACLMessage handleCfp(ACLMessage cfp) throws RefuseException, FailureException, NotUnderstoodException {
         monAgent.println("~".repeat(40));
-        int hasard = (int)(Math.random()*8) - 4;
-        monAgent.println(cfp.getSender().getLocalName() + " proposes this options: " + cfp.getContent());
         ACLMessage answer = cfp.createReply();
-        if(hasard<=0 )answer.setPerformative(ACLMessage.REFUSE);
-        else answer.setPerformative(ACLMessage.PROPOSE);
 
-//                String choice = makeItsChoice(cfp.getContent());
-        answer.setContent(String.valueOf(hasard));
-        return answer;
-    }
+        try {
+            Product productDTO = (Product) cfp.getContentObject();
+            monAgent.println(cfp.getSender().getLocalName() + " demande une réparation pour le produit de type " + productDTO.getName());
 
-    /**proposals in the form option1,option2,option3,option4,.....
-     * * he returns his choice by ordering the options and giving their positions
-     * @param offres list of proposals in the form of option1,option2,option3,option4
-     * @return orderly choice in the form of option2_1,option4_2,option3_3,option1_4
-     * */
-    private String makeItsChoice(String offres) {
-        ArrayList<String> choice = new ArrayList<>(List.of(offres.split(",")));
-        Collections.shuffle(choice);
-        StringBuilder sb = new StringBuilder();
-        String pref = ">";
-        for (String s : choice) sb.append(s).append(pref);
-        String proposition  = sb.substring(0, sb.length()-1);
-        monAgent.println("I propose this ranking: " + proposition);
-        return proposition;
+            // Le contenu du message CFP contient la référence de la pièce demandée
+            String partName = cfp.getContent();
+            monAgent.println(cfp.getSender().getLocalName() + " asks for part: " + partName);
+
+
+            // Recherche de la pièce dans la liste des pièces disponibles
+            Part partToRepair = productDTO.getFaultyPart();
+
+            if (!monAgent.parts.contains(partToRepair)) {
+                // Si la pièce n'est pas disponible, on refuse la demande
+                monAgent.println("Sorry, I don't have this part.");
+                answer.setPerformative(ACLMessage.REFUSE);
+                return answer;
+            }
+
+            // Calcul du prix (entre 5 et 15 €)
+            int price = MIN_PRICE + (int) (Math.random() * (MAX_PRICE - MIN_PRICE + 1));
+
+            // Réponse avec le prix proposé
+            answer.setPerformative(ACLMessage.PROPOSE);
+            answer.setContent(String.valueOf(price));  // Le prix proposé pour la réparation
+
+            monAgent.println("Je propose un prix de " + price + " € pour la réparation.");
+
+            return answer;
+        } catch (UnreadableException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //function triggered by a ACCEPT_PROPOSAL msg : the polling station agent  accept the vote
@@ -59,11 +72,12 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
     @Override
     protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
         monAgent.println("=".repeat(15));
-        monAgent.println(" I proposed " + propose.getContent());
-        monAgent.println(cfp.getSender().getLocalName() + " accepted my poposam and sent the result:  " + accept.getContent());
+        monAgent.println("J'ai proposé " + propose.getContent());
+        monAgent.println(cfp.getSender().getLocalName() + " a accepté ma proposition avec la réponse : " + accept.getContent());
+
         ACLMessage msg = accept.createReply();
         msg.setPerformative(ACLMessage.INFORM);
-        msg.setContent("ok !");
+        msg.setContent("Réparation acceptée !");
         return msg;
     }
 
@@ -74,10 +88,8 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
     @Override
     protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose, ACLMessage reject) {
         monAgent.println("=".repeat(10));
-        monAgent.println("PROPOSAL REJECTED");
-        monAgent.println(cfp.getSender().getLocalName() + " asked to repair elt no " + cfp.getContent());
-        monAgent.println(" I proposed " + propose.getContent());
-        monAgent.println(cfp.getSender().getLocalName() + " refused ! with this message: " + reject.getContent());
+        monAgent.println("PROPOSITION REJETEE");
+        monAgent.println(cfp.getSender().getLocalName() + " a rejeté ma proposition : " + reject.getContent());
     }
 
 
