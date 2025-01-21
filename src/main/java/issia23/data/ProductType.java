@@ -37,6 +37,10 @@ public enum ProductType implements Serializable {
         this.standardPrice = standardPrice;
     }
 
+    public static ProductType getRandomProductType() {
+        return values()[(int) (Math.random() * values().length)];
+    }
+
 /*    @Override
     public String toString() {
         return String.format("%s,  difficulty=%d, transportable=%b, danger=%b " +
