@@ -1,5 +1,5 @@
-### Programmation multi-agents avec JADE
-GUIOT Maxime & JUAN Robin
+# Programmation multi-agents avec JADE
+#### GUIOT Maxime & JUAN Robin
 ---
 ## Économie circulaire
 
