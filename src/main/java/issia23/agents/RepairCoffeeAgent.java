@@ -15,8 +15,6 @@ import java.util.List;
 public class RepairCoffeeAgent extends AgentWindowed {
     public List<Part> parts;
 
-    // Niveau de compétence de réparation (par exemple, 2 ou 3)
-    private int repairSkillLevel;
 
     @Override
     public void setup(){
@@ -30,13 +28,11 @@ public class RepairCoffeeAgent extends AgentWindowed {
 
         //distributors have 2 examples of some parts
         parts = new ArrayList<>();
-        var allParts = Part.getListParts();
+        var allParts = Part.getPartsWithFilter(part -> part.getDifficulty() < 4 && part.getPrice() <= 15);
         var nb = allParts.size();
-        var nbStock = (int)(nb*.05);
-        for(int i=0; i<nbStock; i++) {
+        for(int i=0; i<5; i++) {
             var rand = (int)(Math.random()*nb);
-            for(int j=0; j<2; j++)
-                parts.add(allParts.get(rand));
+            parts.add(allParts.get(rand));
         }
         println("i have the following parts : ");
         for(var p:parts) println(p.getName() + " ");
@@ -56,6 +52,14 @@ public class RepairCoffeeAgent extends AgentWindowed {
         addBehaviour(attenteDemandeUtilisateur);
     }
 
+    public Part findPart(String partName) {
+        for (Part part : parts) {
+            if (part.getName().equals(partName)) {
+                return part;
+            }
+        }
+        return null;
+    }
 
     public void println(String s){
         window.println(s);

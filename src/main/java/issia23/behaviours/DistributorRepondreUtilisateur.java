@@ -1,56 +1,52 @@
 package issia23.behaviours;
 
-import issia23.data.Product;
 import jade.proto.ContractNetResponder;
-import issia23.agents.SparePartsStoreAgent;
-import issia23.data.Part;
+import issia23.agents.DistributorAgent;
+import issia23.data.Product;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-public class SparePartsStoreRepondreUtilisateur extends ContractNetResponder {
 
-    SparePartsStoreAgent monAgent;
+public class DistributorRepondreUtilisateur extends ContractNetResponder {
+
+    DistributorAgent monAgent;
 
 
-    public SparePartsStoreRepondreUtilisateur(SparePartsStoreAgent a, MessageTemplate model) {
+    public DistributorRepondreUtilisateur(DistributorAgent a, MessageTemplate model) {
         super(a, model);
         monAgent = a;
     }
 
-    // Function triggered by a CFP message: respond to a spare part request
+    // Function triggered by a CFP message: respond to a product replacement request
     @Override
     protected ACLMessage handleCfp(ACLMessage cfp) throws RefuseException, FailureException, NotUnderstoodException {
         monAgent.println("~".repeat(40));
         ACLMessage answer = cfp.createReply();
 
         try {
-            // The CFP message contains a reference to the requested part
+            // The CFP message contains a reference to the requested product
             Product productDTO = (Product) cfp.getContentObject();
-            monAgent.println(cfp.getSender().getLocalName() + " requests a repair for the product of type " + productDTO.getName());
+            monAgent.println(cfp.getSender().getLocalName() + " requests a replacement for the product: " + productDTO.getName());
 
-            Part partToRepair = productDTO.getFaultyPart();
-            monAgent.println("The part to be repaired is: " + partToRepair.getName());
+            // Search for the product in the distributor's inventory
+            Product requestedProduct = monAgent.findProduct(productDTO.getName());
 
-            // Search for the part in the store's inventory
-            Part requestedPart = monAgent.findPart(partToRepair.getName());
-
-            if (requestedPart == null) {
-                // If the part is not available, we refuse the request
-                monAgent.println("Sorry, I don't have this part.");
+            if (requestedProduct == null) {
+                // If the product is not available, we refuse the request
+                monAgent.println("Sorry, I don't have this product.");
                 answer.setPerformative(ACLMessage.REFUSE);
                 return answer;
             }
 
-            // Calculate the price (between 20 and 40 €)
-            int price = (int)requestedPart.getPrice();
+            int price = (int)requestedProduct.getPrice();
 
-            // Response with the proposed price for the part
+            // Response with the proposed price for the product
             answer.setPerformative(ACLMessage.PROPOSE);
-            answer.setContent(String.valueOf(price));  // Le prix proposé pour la pièce
+            answer.setContent(String.valueOf(price));
 
-            monAgent.println("I propose a price of " + price + " € for the spare part.");
+            monAgent.println("I propose a price of " + price + " € for the product.");
 
             return answer;
         } catch (Exception e) {
@@ -67,7 +63,7 @@ public class SparePartsStoreRepondreUtilisateur extends ContractNetResponder {
 
         ACLMessage msg = accept.createReply();
         msg.setPerformative(ACLMessage.INFORM);
-        msg.setContent("Spare part accepted and reserved!");
+        msg.setContent("Product accepted and reserved!");
         return msg;
     }
 
@@ -78,6 +74,5 @@ public class SparePartsStoreRepondreUtilisateur extends ContractNetResponder {
         monAgent.println("PROPOSAL REJECTED");
         monAgent.println(cfp.getSender().getLocalName() + " rejected.");
     }
-
 }
 

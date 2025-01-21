@@ -28,13 +28,12 @@ public class SparePartsStoreAgent extends AgentWindowed {
 
         //distributors have 3 examples of some parts
         parts = new ArrayList<>();
-        var allParts = Part.getListParts();
+        var allParts = Part.getPartsWithFilter(part -> part.getDifficulty() < 4 && part.getPrice() <= 40
+                && part.getPrice() >= 20);
         var nb = allParts.size();
-        var nbStock = (int)(nb*.6);
-        for(int i=0; i<nbStock; i++) {
+        for(int i=0; i<10; i++) {
             var rand = (int)(Math.random()*nb);
-            for(int j=0; j<3; j++)
-                parts.add(allParts.get(rand));
+            parts.add(allParts.get(rand));
         }
         println("i have the following parts : ");
         for(var p:parts) println(p.getName() + " ");
@@ -48,7 +47,7 @@ public class SparePartsStoreAgent extends AgentWindowed {
                 return part;
             }
         }
-        return null;  // Si la pièce n'est pas trouvée
+        return null;
     }
 
     private void addListeningACFP()

@@ -1,5 +1,6 @@
 package issia23.agents;
 
+import issia23.behaviours.DistributorRepondreUtilisateur;
 import issia23.data.Product;
 import jade.core.AgentServicesTools;
 import jade.gui.AgentWindowed;
@@ -26,13 +27,7 @@ public class DistributorAgent extends AgentWindowed {
         println("I'm just registered as a Distributor");
 
         products = new HashSet<>();
-        var allProducts = Product.getListProducts();
-        var nb = allProducts.size();
-        var nbStock = (int)(nb*.8);
-        for(int i=0; i<nbStock; i++) {
-            var rand = (int)(Math.random()*nb);
-            products.add(allProducts.get(rand));
-        }
+        products.addAll(Product.getListProducts());
         println("i have the following products : ");
         for(var p:products) println(p.getName() + " ");
 
@@ -44,10 +39,20 @@ public class DistributorAgent extends AgentWindowed {
 
         MessageTemplate model = MessageTemplate.MatchConversationId("id");
 
-        //var attenteDemandeUtilisateur = new CafeRepondreUtilisateur(this, model);
+        var attenteDemandeUtilisateur = new DistributorRepondreUtilisateur(this, model);
 
-        //addBehaviour(attenteDemandeUtilisateur);
+        addBehaviour(attenteDemandeUtilisateur);
     }
+
+    public Product findProduct(String productName) {
+        for (Product product : products) {
+            if (product.getName().equals(productName)) {
+                return product;
+            }
+        }
+        return null;
+    }
+
 
 
     public void println(String s){

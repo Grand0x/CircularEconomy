@@ -3,6 +3,8 @@ package issia23.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class  Part implements Serializable {
     String name;
@@ -59,5 +61,11 @@ public class  Part implements Serializable {
 
     public static List<Part> getListParts() {
         return listParts;
+    }
+
+    public static List<Part> getPartsWithFilter(Predicate<Part> condition) {
+        return listParts.stream()
+                .filter(condition)
+                .collect(Collectors.toList());
     }
 }

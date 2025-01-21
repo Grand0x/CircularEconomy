@@ -80,12 +80,6 @@ public class UserAgent extends AgentWindowed {
         addBehaviour(contacterRepairCafe);
     }
 
-    /**here we simplify the scenario. A breakdown is about 1 elt..
-     * so whe choose a no between 1 to 4 and ask who can repair at at wich cost.*/
-    private void breakdown(){
-
-    }
-
     public void println(String s){
         window.println(s);
     }

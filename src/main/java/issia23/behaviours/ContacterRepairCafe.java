@@ -43,7 +43,7 @@ public class ContacterRepairCafe  extends ContractNetInitiator{
 
         ACLMessage bestProposal =null;
         ACLMessage bestAnswer =null;
-        var bestPrice = Integer.MAX_VALUE;
+        var bestPrice = (int)(Math.random() * 1000); // Random initial value for bestPrice
 
         for (ACLMessage proposal : listeProposals) {
             //by default, we build a accept answer for each proposal
@@ -52,7 +52,7 @@ public class ContacterRepairCafe  extends ContractNetInitiator{
             myAnswers.add(answer);
             var content = Integer.parseInt(proposal.getContent());
             monAgent.println(proposal.getSender().getLocalName() + " has proposed " + content);
-            if (content<bestPrice){
+            if (content<=bestPrice){
                 bestPrice = content;
                 bestProposal = proposal;
                 bestAnswer = answer;
@@ -60,9 +60,9 @@ public class ContacterRepairCafe  extends ContractNetInitiator{
 
         }
 
-        if (bestProposal !=null)
+        if (bestAnswer !=null)
         {
-            bestProposal.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+            bestAnswer.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
             monAgent.println("I choose the proposal of " + bestProposal.getSender().getLocalName());
         }
 

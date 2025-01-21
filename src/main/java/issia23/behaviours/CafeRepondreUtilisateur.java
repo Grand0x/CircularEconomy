@@ -17,9 +17,6 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
 
     RepairCoffeeAgent monAgent;
 
-    private static final int MIN_PRICE = 5;
-    private static final int MAX_PRICE = 15;
-
     public CafeRepondreUtilisateur(RepairCoffeeAgent a, MessageTemplate model) {
         super(a, model);
         monAgent = a;
@@ -33,31 +30,28 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
 
         try {
             Product productDTO = (Product) cfp.getContentObject();
-            monAgent.println(cfp.getSender().getLocalName() + " demande une réparation pour le produit de type " + productDTO.getName());
-
-            // Le contenu du message CFP contient la référence de la pièce demandée
-            String partName = cfp.getContent();
-            monAgent.println(cfp.getSender().getLocalName() + " asks for part: " + partName);
+            monAgent.println(cfp.getSender().getLocalName() + " wan't to repair the product " + productDTO.getName());
 
 
-            // Recherche de la pièce dans la liste des pièces disponibles
+            // Search for the part in the list of available parts
             Part partToRepair = productDTO.getFaultyPart();
 
-            if (!monAgent.parts.contains(partToRepair)) {
-                // Si la pièce n'est pas disponible, on refuse la demande
-                monAgent.println("Sorry, I don't have this part.");
+            Part part = monAgent.findPart(partToRepair.getName());
+
+            if (part == null) {
+                // If the part is not available, we refuse the request
+                monAgent.println("Sorry, i don't have this part.");
                 answer.setPerformative(ACLMessage.REFUSE);
                 return answer;
             }
 
-            // Calcul du prix (entre 5 et 15 €)
-            int price = MIN_PRICE + (int) (Math.random() * (MAX_PRICE - MIN_PRICE + 1));
+            int price = (int)part.getPrice();
 
-            // Réponse avec le prix proposé
+            // Response with the proposed price
             answer.setPerformative(ACLMessage.PROPOSE);
-            answer.setContent(String.valueOf(price));  // Le prix proposé pour la réparation
+            answer.setContent(String.valueOf(price));
 
-            monAgent.println("Je propose un prix de " + price + " € pour la réparation.");
+            monAgent.println("I can repair for " + price + " €.");
 
             return answer;
         } catch (UnreadableException e) {
@@ -72,12 +66,12 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
     @Override
     protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
         monAgent.println("=".repeat(15));
-        monAgent.println("J'ai proposé " + propose.getContent());
-        monAgent.println(cfp.getSender().getLocalName() + " a accepté ma proposition avec la réponse : " + accept.getContent());
+        monAgent.println("I proposed " + propose.getContent());
+        monAgent.println(cfp.getSender().getLocalName() + " accepted my proposal with the response: " + accept.getContent());
 
         ACLMessage msg = accept.createReply();
         msg.setPerformative(ACLMessage.INFORM);
-        msg.setContent("Réparation acceptée !");
+        msg.setContent("Repair accepted!");
         return msg;
     }
 
@@ -88,8 +82,8 @@ public class CafeRepondreUtilisateur extends ContractNetResponder {
     @Override
     protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose, ACLMessage reject) {
         monAgent.println("=".repeat(10));
-        monAgent.println("PROPOSITION REJETEE");
-        monAgent.println(cfp.getSender().getLocalName() + " a rejeté ma proposition : " + reject.getContent());
+        monAgent.println("PROPOSAL REJECTED");
+        monAgent.println(cfp.getSender().getLocalName() + " rejected my proposal: " + reject.getContent());
     }
 
 
